@@ -1,28 +1,22 @@
 name: Get Unity License File
 
-on: [push]
+on:
+  workflow_dispatch: {} # Actions tab-ல இருந்து கைமுறையா ரன் பண்ண
 
 jobs:
   activation:
-    name: Request manual activation file
+    name: Activate Unity License
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Request manual activation file
-        id: getManualLicenseFile
-        uses: game-ci/unity-request-activation-file@v2
-        with:
-          unityVersion: 2022.3.40f1
-
-      - name: Activate Unity License
+      - name: Activate Unity
         uses: game-ci/unity-activate@v2
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          alfPath: ${{ steps.getManualLicenseFile.outputs.filePath }}
           unityVersion: 2022.3.40f1
 
       - name: Upload ULF artifact
