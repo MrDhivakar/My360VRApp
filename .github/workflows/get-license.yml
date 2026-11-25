@@ -1,20 +1,32 @@
 name: Get Unity License File
+
 on: [push]
 
 jobs:
   activation:
+    name: Request manual activation file
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Generate activation file (.alf)
-        run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
-            unityci/editor:ubuntu-2022.3.40f1-base-3 \
-            unity-editor -batchmode -nographics -logFile /dev/stdout -quit -createManualActivationFile || true
+      - name: Request manual activation file
+        id: getManualLicenseFile
+        uses: game-ci/unity-request-activation-file@v2
+        with:
+          unityVersion: 2022.3.40f1
 
-      - name: Upload ALF artifact
+      - name: Activate Unity License
+        uses: game-ci/unity-activate@v2
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          alfPath: ${{ steps.getManualLicenseFile.outputs.filePath }}
+          unityVersion: 2022.3.40f1
+
+      - name: Upload ULF artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Unity_v2022.3.40f1.alf
-          path: "*.alf"
+          name: Unity_v2022.3.40f1.ulf
+          path: "*.ulf"
